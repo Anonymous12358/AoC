@@ -7,7 +7,7 @@ import re
 
 import numpy as np
 
-YEAR = 2022
+YEAR = 2023
 
 
 def main():
