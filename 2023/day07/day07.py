@@ -34,20 +34,15 @@ def part_a(inp):
 
 
 def categorise_b(hand):
+    # Separate jokers
     jokers = hand.count("J")
-    # Move jokers to the front
-    hand = list(sorted(hand, key=lambda c: c != "J"))
+    hand = tuple(c for c in hand if c != "J")
     # We only need to iterate through values that already occur in the hand
     in_hand = set(hand)
-    in_hand.discard("J")
     if not in_hand:
         in_hand = {"2"}
-    best = 0
-    # Iterate through all possible values of the jokers
-    for joker_values in itertools.product(in_hand, repeat=jokers):
-        hand[:jokers] = joker_values
-        best = max(best, categorise(hand))
-    return best
+    # Iterate over all values of the jokers and return the best achievable hand
+    return max(categorise(hand + joker_values) for joker_values in itertools.product(in_hand, repeat=jokers))
 
 
 def rate_b(hand):
