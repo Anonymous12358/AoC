@@ -47,6 +47,41 @@ def part_a(inp):
     return i
 
 
+def mark_interior(grid):
+    start = tuple(np.argwhere(grid == "S")[0])
+    # Determine what the start tile is meant to be
+    if start in leads_to(start[0] + 1, start[1], grid):
+        if start in leads_to(start[0] - 1, start[1], grid):
+            grid[start] = "|"
+        elif start in leads_to(start[0], start[1] + 1, grid):
+            grid[start] = "F"
+        else:
+            grid[start] = "7"
+    elif start in leads_to(start[0] - 1, start[1], grid):
+        if start in leads_to(start[0], start[1] + 1, grid):
+            grid[start] = "L"
+        else:
+            grid[start] = "J"
+    else:
+        grid[start] = "-"
+
+    for y, row in enumerate(grid):
+        inside = False
+        pipe_entered = None
+        for x, char in enumerate(row):
+            if char in "FL":
+                pipe_entered = char
+            elif (pipe_entered, char) in (("F", "7"), ("L", "J")):
+                pipe_entered = None
+            elif (pipe_entered, char) in (("F", "J"), ("L", "7")):
+                pipe_entered = None
+                inside = not inside
+            if char == "." and inside:
+                row[x] = "#"
+            elif char == "|":
+                inside = not inside
+
+
 def part_b(inp):
     """array
     split
@@ -68,37 +103,6 @@ def part_b(inp):
             if (y, x) not in seen:
                 inp[y, x] = "."
 
-    # Determine what the start tile is meant to be
-    if start in leads_to(start[0] + 1, start[1], inp):
-        if start in leads_to(start[0] - 1, start[1], inp):
-            inp[start] = "|"
-        elif start in leads_to(start[0], start[1] + 1, inp):
-            inp[start] = "F"
-        else:
-            inp[start] = "7"
-    elif start in leads_to(start[0] - 1, start[1], inp):
-        if start in leads_to(start[0], start[1] + 1, inp):
-            inp[start] = "L"
-        else:
-            inp[start] = "J"
-    else:
-        inp[start] = "-"
+    mark_interior(inp)
 
-    result = 0
-    for y, row in enumerate(inp):
-        inside = False
-        pipe_entered = None
-        for x, char in enumerate(row):
-            if char in "FL":
-                pipe_entered = char
-            elif (pipe_entered, char) in (("F", "7"), ("L", "J")):
-                pipe_entered = None
-            elif (pipe_entered, char) in (("F", "J"), ("L", "7")):
-                pipe_entered = None
-                inside = not inside
-            if char == ".":
-                result += inside
-            elif char == "|":
-                inside = not inside
-
-    return result
+    return np.sum(inp == "#")
